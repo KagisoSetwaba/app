@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">Quick Utility</string>
     <string name="flash_events">Flash Events</string>
     <string name="converter">Converter</string>
     <string name="calculator">Calculator</string>

@@ -1,7 +1,14 @@
 package com.example.myapplication
 
+import android.app.AlertDialog
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -14,6 +21,21 @@ class CalculatorFragment : Fragment() {
     private lateinit var resultTextView: TextView
     private var operator: String? = null
     private var firstValue: String? = null
+    private lateinit var helpManager: HelpManager
+
+    // SharedPreferences to manage settings
+    private lateinit var sharedPreferences: SharedPreferences
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true) // Enable options menu for this fragment
+
+        // Initialize SharedPreferences
+        sharedPreferences = requireContext().getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+
+        // Initialize HelpManager
+        helpManager = HelpManager(requireContext())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,6 +47,9 @@ class CalculatorFragment : Fragment() {
 
         // Set up button click listeners
         setupButtonListeners(view)
+
+        // Load and apply settings if necessary
+        loadSettings()
 
         return view
     }
@@ -72,19 +97,78 @@ class CalculatorFragment : Fragment() {
     }
 
     private fun calculateResult() {
-        val secondValue = workingTextView.text.toString().substringAfterLast(operator ?: "")
-        if (firstValue != null && operator != null && secondValue.isNotEmpty()) {
-            val result = when (operator) {
-                "+" -> firstValue!!.toDouble() + secondValue.toDouble()
-                "-" -> firstValue!!.toDouble() - secondValue.toDouble()
-                "*" -> firstValue!!.toDouble() * secondValue.toDouble()
-                "/" -> firstValue!!.toDouble() / secondValue.toDouble()
-                else -> 0.0
+        // Create an AlertDialog to confirm the calculation
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+        dialogBuilder.setTitle("Confirm Calculation")
+        dialogBuilder.setMessage("Are you sure you want to calculate the result?")
+
+        dialogBuilder.setPositiveButton("Yes") { dialog, _ ->
+            // User confirmed, proceed with calculation
+            val secondValue = workingTextView.text.toString().substringAfterLast(operator ?: "")
+            if (firstValue != null && operator != null && secondValue.isNotEmpty()) {
+                val result = when (operator) {
+                    "+" -> firstValue!!.toDouble() + secondValue.toDouble()
+                    "-" -> firstValue!!.toDouble() - secondValue.toDouble()
+                    "*" -> firstValue!!.toDouble() * secondValue.toDouble()
+                    "/" -> firstValue!!.toDouble() / secondValue.toDouble()
+                    else -> 0.0
+                }
+                resultTextView.text = result.toString()
+                // Reset for the next calculation
+                firstValue = null
+                operator = null
             }
-            resultTextView.text = result.toString()
-            // Reset for the next calculation
-            firstValue = null
-            operator = null
+            dialog.dismiss()
+        }
+
+        dialogBuilder.setNegativeButton("No") { dialog, _ ->
+            // User canceled the calculation dialog.dismiss()
+        }
+
+        // Show the dialog
+        val alertDialog = dialogBuilder.create()
+        alertDialog.show()
+    }
+
+    private fun loadSettings() {
+        // Load any settings from SharedPreferences if needed
+        // For example, you can check for a specific setting and apply it
+        val language = sharedPreferences.getString("language", "default_language")
+        // Apply settings to the UI if necessary
+    }
+
+    @Suppress("DEPRECATION")
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_main, menu) // Inflate the single menu
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    @Suppress("DEPRECATION")
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                // Handle settings action
+                val intent = Intent(requireContext(), SettingsActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            R.id.action_help -> {
+                // Handle help action
+                showHelpDialog()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun showHelpDialog() {
+        helpManager.showHelpDialog { which ->
+            when (which) {
+                0 -> helpManager.showFAQs() // Show FAQs
+                1 -> helpManager.contactSupport() // Contact support
+                2 -> helpManager.showVersionInfo() // Show version info
+                3 -> helpManager.giveFeedback() // Give feedback
+            }
         }
     }
 }

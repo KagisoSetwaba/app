@@ -13,7 +13,7 @@ class DailyFragment : Fragment() {
 
     private lateinit var eventListView: ListView
     private lateinit var selectedDateTextView: TextView
-    private val events = mutableListOf<String>()
+    private val events = mutableListOf<String>() // List to hold event strings
     private lateinit var adapter: ArrayAdapter<String> // Declare adapter here
 
     override fun onCreateView(
@@ -32,9 +32,10 @@ class DailyFragment : Fragment() {
         return view
     }
 
+    // Update method to accept a date and a list of events
     fun updateEventList(date: String, events: List<String>) {
-        this.events.clear()
-        this.events.addAll(events)
+        this.events.clear() // Clear existing events
+        this.events.addAll(events) // Add new events
 
         // Update the displayed date
         selectedDateTextView.text = "Events for: $date"
@@ -42,5 +43,4 @@ class DailyFragment : Fragment() {
         // Notify the adapter that the data has changed
         adapter.notifyDataSetChanged() // Notify the adapter to refresh the ListView
     }
-
 }

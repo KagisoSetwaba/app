@@ -2,6 +2,9 @@ package com.example.myapplication
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -13,6 +16,8 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import android.widget.EditText
 import java.util.Calendar
+import android.content.Intent
+import android.util.Log
 
 class FlashEventsFragment : Fragment() {
 
@@ -20,6 +25,13 @@ class FlashEventsFragment : Fragment() {
     private lateinit var fabAddEvent: FloatingActionButton
     private val events = mutableListOf<String>()
     private lateinit var adapter: ArrayAdapter<String>
+    private lateinit var helpManager: HelpManager // Add HelpManager
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true) // Enable options menu for this fragment
+        helpManager = HelpManager(requireContext()) // Initialize HelpManager
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -72,18 +84,41 @@ class FlashEventsFragment : Fragment() {
             }, hour, minute, true).show()
         }
 
+        // Change the Positive Button to show a confirmation dialog
         builder.setPositiveButton("Add") { _, _ ->
+            // This will be handled in the confirmation dialog
+        }
+        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+
+        // Show the initial dialog
+        val alertDialog = builder.create()
+        alertDialog.show()
+
+        // Set up the confirmation dialog on positive button click
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             val eventTitle = inputTitle.text.toString()
             val eventTime = inputTime.text.toString()
+
             if (eventTitle.isNotEmpty() && eventTime.isNotEmpty()) {
-                events.add("$eventTitle at $eventTime")
-                adapter.notifyDataSetChanged()
+                // Show confirmation dialog
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Confirm Addition")
+                    .setMessage("Are you sure you want to add the event '$eventTitle at $eventTime'?")
+                    .setPositiveButton("Yes") { _, _ ->
+                        // User confirmed, add the event
+                        events.add("$eventTitle at $eventTime")
+                        adapter.notifyDataSetChanged()
+                        alertDialog.dismiss() // Dismiss the initial dialog
+                    }
+                    .setNegativeButton("No") { dialog, _ ->
+                    // User canceled, dismiss the confirmation dialog
+                    dialog.dismiss()
+                }
+                    .show()
             } else {
                 Toast.makeText(requireContext(), "Event title and time cannot be empty", Toast.LENGTH_SHORT).show()
             }
         }
-        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-        builder.show()
     }
 
     private fun showEditDeleteDialog(position: Int) {
@@ -121,6 +156,60 @@ class FlashEventsFragment : Fragment() {
         }
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
         builder.show()
+    }
+
+    private fun openSettingsDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Open Settings")
+            .setMessage("Are you sure you want to open the settings?")
+            .setPositiveButton("Yes") { _, _ ->
+                // User confirmed, open SettingsActivity
+                openSettingsActivity()
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                // User canceled, dismiss the dialog
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun openSettingsActivity() {
+        if (isAdded) {
+            val intent = Intent(requireContext(), SettingsActivity::class.java)
+            startActivity(intent)
+        } else {
+            Log.e("FlashEventsFragment", "Fragment is not attached to an activity.")
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_main, menu) // Inflate the menu
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                openSettingsDialog() // Open settings confirmation dialog
+                true
+            }
+            R.id.action_help -> {
+                showHelpDialog()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun showHelpDialog() {
+        helpManager.showHelpDialog { which ->
+            when (which) {
+                0 -> helpManager.showFAQs() // Show FAQs
+                1 -> helpManager.contactSupport() // Contact support
+                2 -> helpManager.showVersionInfo() // Show version info
+                3 -> helpManager.giveFeedback() // Give feedback
+            }
+        }
     }
 
     override fun onDestroyView() {

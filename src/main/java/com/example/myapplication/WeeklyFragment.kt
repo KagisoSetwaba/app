@@ -22,9 +22,10 @@ class WeeklyFragment : Fragment() {
         return view
     }
 
-    fun updateEventList(events: List<String>) {
+    // Change the method signature
+    fun updateEventList(date: String, weeklyEvents: List<String>) {
         this.events.clear()
-        this.events.addAll(events)
+        this.events.addAll(weeklyEvents) // Use weeklyEvents instead of events
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, this.events)
         eventListView.adapter = adapter
     }

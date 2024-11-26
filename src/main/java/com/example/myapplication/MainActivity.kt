@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.appcompat.widget.Toolbar
 
 class MainActivity : AppCompatActivity() {
 
@@ -11,14 +12,22 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main) // Ensure this is the correct layout
 
+        // Set up the toolbar
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        // Set the title of the Action Bar
+        supportActionBar?.title = "QuickUtilityApp"
+
         // Initialize the BottomNavigationView
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
         // Check if the Fragment is already added to avoid overlapping
         if (savedInstanceState == null) {
-            // Load the default fragment (CalculatorFragment)
-            loadFragment(CalculatorFragment())
+            // Load the default fragment (MonthlyFragment or WeeklyFragment)
+            loadFragment(MonthlyFragment()) // Change to WeeklyFragment() if needed
         }
+
 
         // Set listener for BottomNavigationView
         bottomNavigationView.setOnNavigationItemSelectedListener { menuItem ->
@@ -32,10 +41,10 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_calendar -> {
-                    loadFragment(CalendarFragment())
+                    loadFragment(CalendarFragment()) // Load your CalendarFragment
                     true
                 }
-                R.id.nav_flash_events -> { // Handle Flash Events fragment
+                R.id.nav_flash_events -> {
                     loadFragment(FlashEventsFragment())
                     true
                 }
