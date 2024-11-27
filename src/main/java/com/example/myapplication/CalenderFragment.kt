@@ -7,9 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.EditText
-import android.widget.ListView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager
@@ -37,8 +35,7 @@ class CalendarFragment : Fragment() {
         tabLayout = view.findViewById(R.id.tab_layout)
         viewPager = view.findViewById(R.id.view_pager)
         fabAddEvent = view.findViewById(R.id.fab_add_event)
-        eventTextView = view.findViewById(R.id.text_view_events) // Initialize the TextView
-
+        eventTextView = view.findViewById(R.id.text_view_events) // Initialize TextView
 
         // Set up ViewPager with an adapter for daily, weekly, and monthly views
         val adapter = CalendarPagerAdapter(childFragmentManager)
@@ -110,7 +107,7 @@ class CalendarFragment : Fragment() {
         // Display events for the selected date in the TextView
         val eventsForDate = eventsMap[date] ?: emptyList()
         eventTextView.text = if (eventsForDate.isNotEmpty()) {
-            eventsForDate.joinToString("\n ")
+            "Events for $date:\n" + eventsForDate.joinToString("\n ")
         } else {
             "No events for this date."
         }
@@ -151,3 +148,4 @@ class CalendarFragment : Fragment() {
         return monthEvents
     }
 }
+
