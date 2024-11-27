@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_calendar"
+        android:title="@string/calendar"
+         />
+    <item
+        android:id="@+id/nav_calculator"
+        android:title="@string/calculator"
+         />
+    <item
+        android:id="@+id/nav_converter"
+        android:title="@string/converter"
+        />
+    <item
+        android:id="@+id/nav_flash_events"
+        android:title="@string/flash_events"
+         />
+</menu>
