@@ -9,19 +9,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+    <TextView
+        android:id="@+id/text_view_events"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="No events for this date."
+        android:textSize="16sp"
+        android:visibility="visible" /> <!-- Initially visible, can be updated later -->
+
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
-
-    <TextView
-        android:id="@+id/event_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="No events for this date."
-        android:textSize="16sp"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_event"
@@ -30,5 +31,4 @@
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
         android:src="@drawable/ic_add" />
-
 </LinearLayout>

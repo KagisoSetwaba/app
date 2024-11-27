@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
@@ -26,9 +27,8 @@ class CalendarFragment : Fragment() {
     private val eventsMap = mutableMapOf<String, MutableList<String>>() // To hold events for each date
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private lateinit var eventTextView: TextView // TextView to display events
-    private lateinit var eventListView: ListView // Assume you have a ListView to display events
-    private lateinit var eventAdapter: ArrayAdapter<String>
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -37,7 +37,8 @@ class CalendarFragment : Fragment() {
         tabLayout = view.findViewById(R.id.tab_layout)
         viewPager = view.findViewById(R.id.view_pager)
         fabAddEvent = view.findViewById(R.id.fab_add_event)
-        eventTextView = view.findViewById(R.id.event_text_view) // Initialize TextView
+        eventTextView = view.findViewById(R.id.text_view_events) // Initialize the TextView
+
 
         // Set up ViewPager with an adapter for daily, weekly, and monthly views
         val adapter = CalendarPagerAdapter(childFragmentManager)
@@ -100,28 +101,16 @@ class CalendarFragment : Fragment() {
         // Get the current fragment
         val currentFragment = (viewPager.adapter as CalendarPagerAdapter).getCurrentFragment(viewPager.currentItem)
 
-        // Update Daily Fragment
-        if (currentFragment is DailyFragment) {
-            val dailyEvents = getDailyEvents(date) // Ensure this returns List<String>
-            // Call updateEventList with both parameters
-            currentFragment.updateEventList(date, dailyEvents) // Pass both date and events
-        }
-
-        // Similarly for Weekly and Monthly Fragments
-        if (currentFragment is WeeklyFragment) {
-            val weeklyEvents = getWeeklyEvents(date)
-            currentFragment.updateEventList(date, weeklyEvents) // Assuming similar method exists
-        }
-
+        // Update Monthly Fragment
         if (currentFragment is MonthlyFragment) {
             val monthlyEvents = getMonthlyEvents(date)
-            currentFragment.updateEventList(date, monthlyEvents) // Assuming similar method exists
+            currentFragment.updateEventList(Calendar.getInstance(), eventsMap) // Pass the eventsMap
         }
 
         // Display events for the selected date in the TextView
         val eventsForDate = eventsMap[date] ?: emptyList()
         eventTextView.text = if (eventsForDate.isNotEmpty()) {
-            eventsForDate.joinToString("\n")
+            eventsForDate.joinToString("\n ")
         } else {
             "No events for this date."
         }
